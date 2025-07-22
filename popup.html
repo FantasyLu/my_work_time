@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>MyTime</title>
+  <style>
+    body {
+      width: 300px;
+      padding: 10px;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #timeButton {
+      padding: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .calendar {
+      margin-top: 10px;
+    }
+    .stats {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <button id="timeButton">Record Time</button>
+    <div class="calendar">
+      <h3>History</h3>
+      <div id="historyList"></div>
+    </div>
+    <div class="stats">
+      <h3>Statistics</h3>
+      <p>Weekly Hours: <span id="weeklyHours">0.00</span></p>
+      <p>Monthly Hours: <span id="monthlyHours">0.00</span></p>
+    </div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
