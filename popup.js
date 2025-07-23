@@ -246,6 +246,57 @@ document.addEventListener('DOMContentLoaded', () => {
 
   loadData();
   document.getElementById('timeButton').addEventListener('click', recordTime);
+
+  document.getElementById('importButton').addEventListener('click', () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.csv';
+    input.style.display = 'none';
+
+    input.addEventListener('change', async () => {
+      if (!input.files.length) return;
+
+      const file = input.files[0];
+      const reader = new FileReader();
+
+      reader.onload = async (e) => {
+        const csv = e.target.result;
+        const rows = csv.split('\n').slice(1); // 跳过表头
+
+        // 清空现有数据
+        workTimeData = {};
+
+        rows.forEach(row => {
+          if (!row.trim()) return;
+
+          const [date, startTime, endTime, hours] = row.split(',');
+
+          // 解析开始和结束时间
+          const [year, month, day] = date.split('-').map(Number);
+          const [startHour, startMinute] = startTime.split(':').map(Number);
+          const [endHour, endMinute] = endTime.split(':').map(Number);
+
+          const firstClickTs = new Date(year, month - 1, day, startHour, startMinute).getTime();
+          const lastClickTs = new Date(year, month - 1, day, endHour, endMinute).getTime();
+
+          workTimeData[date] = {
+            firstClick: firstClickTs,
+            lastClick: lastClickTs
+          };
+        });
+
+        await saveData();
+        renderCalendar(currentDisplayDate);
+      };
+
+      reader.readAsText(file);
+    });
+
+    document.body.appendChild(input);
+    input.click();
+    document.body.removeChild(input);
+  });
+
   document.getElementById('exportButton').addEventListener('click', exportToExcel);
 
   document.getElementById('prevMonth').addEventListener('click', () => {
@@ -263,7 +314,7 @@ document.addEventListener('DOMContentLoaded', () => {
   cancelEdit.addEventListener('click', hideEditModal);
   saveTime.addEventListener('click', saveManualTime);
   window.addEventListener('click', (event) => {
-    if (event.target == modal) {
+    if (event.target === modal) {
       hideEditModal();
     }
   });
