@@ -187,6 +187,52 @@ async function saveManualTime() {
   hideEditModal();
 }
 
+// 导出数据到Excel（CSV格式）
+function exportToExcel() {
+    // 准备CSV内容
+    const headers = ['日期', '开始时间', '结束时间', '工作时长(小时)'];
+    let csvContent = headers.join(',') + '\n';
+
+    // 将数据按日期排序
+    const sortedDates = Object.keys(workTimeData).sort();
+
+    // 添加每一天的数据
+    sortedDates.forEach(date => {
+        const dayData = workTimeData[date];
+        const startTime = new Date(dayData.firstClick);
+        const endTime = new Date(dayData.lastClick);
+        const hours = calculateWorkHours(dayData.firstClick, dayData.lastClick);
+
+        const row = [
+            date,
+            formatTime(dayData.firstClick),
+            formatTime(dayData.lastClick),
+            hours.toFixed(2)
+        ];
+
+        csvContent += row.join(',') + '\n';
+    });
+
+    // 创建Blob对象
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = window.URL.createObjectURL(blob);
+
+    // 创建下载链接并触发下载
+    const link = document.createElement('a');
+    const fileName = `工作时间记录_${new Date().toISOString().split('T')[0]}.csv`;
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', fileName);
+    link.style.display = 'none';
+    
+    document.body.appendChild(link);
+    link.click();
+    
+    // 清理
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+}
+
 // 初始化和事件监听
 document.addEventListener('DOMContentLoaded', () => {
   // 初始化模态框相关的DOM元素
@@ -200,6 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   loadData();
   document.getElementById('timeButton').addEventListener('click', recordTime);
+  document.getElementById('exportButton').addEventListener('click', exportToExcel);
 
   document.getElementById('prevMonth').addEventListener('click', () => {
     currentDisplayDate.setMonth(currentDisplayDate.getMonth() - 1);
