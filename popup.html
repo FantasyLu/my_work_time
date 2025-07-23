@@ -98,6 +98,17 @@
       padding-top: 10px;
       border-top: 1px solid #eee;
     }
+    #importButton, #exportButton {
+      padding: 6px 12px;
+      font-size: 12px;
+      cursor: pointer;
+      background-color: #f8f9fa;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    #importButton:hover, #exportButton:hover {
+      background-color: #e9ecef;
+    }
     #exportButton {
       padding: 6px 12px;
       font-size: 12px;
@@ -113,7 +124,7 @@
 </head>
 <body>
   <div class="container">
-    <button id="timeButton">记录时间</button>
+    <button id="timeButton">PUSH!</button>
     <div class="calendar-container">
       <div class="calendar-header">
         <button id="prevMonth">◀</button>
@@ -128,6 +139,7 @@
       </div>
     </div>
     <div class="footer">
+      <button id="importButton">导入</button>
       <button id="exportButton">导出</button>
     </div>
   </div>
