@@ -1,5 +1,9 @@
 let workTimeData = {};
 let currentDisplayDate = new Date();
+let currentlyEditingDate = null; // 用于跟踪正在编辑的日期
+
+// DOM Elements for Modal
+let modal, closeModal, saveTime, cancelEdit, modalDate, startTimeInput, endTimeInput;
 
 // 加载存储的数据
 async function loadData() {
@@ -85,7 +89,8 @@ function renderCalendar(date) {
         
         const dayCell = document.createElement('div');
         dayCell.classList.add('calendar-cell');
-        dayCell.innerHTML = `<strong>${dayCounter}</strong><br>${hours.toFixed(2)}h`;
+        // 添加编辑按钮
+        dayCell.innerHTML = `<strong>${dayCounter}</strong><br>${hours.toFixed(2)}h <button class="edit-button" data-date="${dateStr}">编辑</button>`;
         calendarGrid.appendChild(dayCell);
 
         weeklyTotal += hours;
@@ -106,10 +111,93 @@ function renderCalendar(date) {
   }
 
   document.getElementById('monthlyTotalHours').textContent = `${monthlyTotal.toFixed(2)}h`;
+  
+  // 为所有新的编辑按钮添加事件监听器
+  document.querySelectorAll('.edit-button').forEach(button => {
+    button.addEventListener('click', (e) => {
+      const dateStr = e.target.getAttribute('data-date');
+      showEditModal(dateStr);
+    });
+  });
+}
+
+// 将时间戳转换为 HH:mm 格式
+function formatTime(timestamp) {
+  if (!timestamp) return '';
+  const date = new Date(timestamp);
+  return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+}
+
+// 显示编辑模态框
+function showEditModal(dateStr) {
+  currentlyEditingDate = dateStr;
+  const dayData = workTimeData[dateStr];
+
+  modalDate.textContent = `编辑 ${dateStr} 的时间`;
+  startTimeInput.value = dayData ? formatTime(dayData.firstClick) : '';
+  endTimeInput.value = dayData ? formatTime(dayData.lastClick) : '';
+
+  modal.style.display = "block";
+}
+
+// 隐藏编辑模态框
+function hideEditModal() {
+  modal.style.display = "none";
+  currentlyEditingDate = null;
+}
+
+// 保存手动输入的时间
+async function saveManualTime() {
+  if (!currentlyEditingDate) return;
+
+  const [year, month, day] = currentlyEditingDate.split('-').map(Number);
+
+  const startTime = startTimeInput.value;
+  const endTime = endTimeInput.value;
+
+  let firstClickTs = null;
+  let lastClickTs = null;
+
+  if (startTime) {
+    const [startHour, startMinute] = startTime.split(':').map(Number);
+    firstClickTs = new Date(year, month - 1, day, startHour, startMinute).getTime();
+  }
+
+  if (endTime) {
+    const [endHour, endMinute] = endTime.split(':').map(Number);
+    lastClickTs = new Date(year, month - 1, day, endHour, endMinute).getTime();
+  }
+
+  // 如果只有一个时间，则另一个时间也设为一样，以记录单个时间点
+  if (firstClickTs && !lastClickTs) lastClickTs = firstClickTs;
+  if (!firstClickTs && lastClickTs) firstClickTs = lastClickTs;
+
+  if (firstClickTs && lastClickTs) {
+      workTimeData[currentlyEditingDate] = {
+        firstClick: firstClickTs,
+        lastClick: lastClickTs
+      };
+  } else {
+      // 如果两个时间都为空，则删除当天的记录
+      delete workTimeData[currentlyEditingDate];
+  }
+
+  await saveData();
+  renderCalendar(currentDisplayDate);
+  hideEditModal();
 }
 
 // 初始化和事件监听
 document.addEventListener('DOMContentLoaded', () => {
+  // 初始化模态框相关的DOM元素
+  modal = document.getElementById('editModal');
+  closeModal = document.querySelector('.close-button');
+  saveTime = document.getElementById('saveTime');
+  cancelEdit = document.getElementById('cancelEdit');
+  modalDate = document.getElementById('modalDate');
+  startTimeInput = document.getElementById('startTime');
+  endTimeInput = document.getElementById('endTime');
+
   loadData();
   document.getElementById('timeButton').addEventListener('click', recordTime);
 
@@ -121,5 +209,15 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('nextMonth').addEventListener('click', () => {
     currentDisplayDate.setMonth(currentDisplayDate.getMonth() + 1);
     renderCalendar(currentDisplayDate);
+  });
+
+  // 模态框事件
+  closeModal.addEventListener('click', hideEditModal);
+  cancelEdit.addEventListener('click', hideEditModal);
+  saveTime.addEventListener('click', saveManualTime);
+  window.addEventListener('click', (event) => {
+    if (event.target == modal) {
+      hideEditModal();
+    }
   });
 });
