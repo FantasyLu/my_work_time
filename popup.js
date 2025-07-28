@@ -169,7 +169,14 @@ function showEditModal(dateStr) {
   currentlyEditingDate = dateStr;
   const dayData = workTimeData[dateStr];
 
-  modalDate.textContent = `编辑 ${dateStr} 的时间`;
+  // 将日期字符串转换为更友好的格式
+  const [year, month, day] = dateStr.split('-').map(Number);
+  const date = new Date(year, month - 1, day);
+  const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+  const weekday = weekdays[date.getDay()];
+  const formattedDate = `${year}年${month}月${day}日（${weekday})`;
+
+  modalDate.value = formattedDate;
   startTimeInput.value = dayData ? formatTime(dayData.firstClick) : '';
   endTimeInput.value = dayData ? formatTime(dayData.lastClick) : '';
 
