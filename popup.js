@@ -89,8 +89,40 @@ function renderCalendar(date) {
         
         const dayCell = document.createElement('div');
         dayCell.classList.add('calendar-cell');
-        // 添加编辑按钮
-        dayCell.innerHTML = `<strong>${dayCounter}</strong><br>${hours.toFixed(2)}h <button class="edit-button" data-date="${dateStr}">编辑</button>`;
+        
+        // 创建单元格内容，移除编辑按钮
+        const cellContent = document.createElement('div');
+        cellContent.classList.add('cell-content');
+        
+        const dateDisplay = document.createElement('div');
+        dateDisplay.classList.add('date-display');
+        dateDisplay.textContent = dayCounter;
+        
+        const hoursDisplay = document.createElement('div');
+        hoursDisplay.classList.add('hours-display');
+        hoursDisplay.textContent = `${hours.toFixed(2)}h`;
+        
+        cellContent.appendChild(dateDisplay);
+        cellContent.appendChild(hoursDisplay);
+        dayCell.appendChild(cellContent);
+        
+        // 添加点击事件到整个单元格
+        dayCell.addEventListener('click', function() {
+          showEditModal(dateStr);
+        });
+        
+        // 检查是否是今天
+        const today = getTodayString();
+        if (dateStr === today) {
+          dayCell.classList.add('today');
+        }
+        
+        // 检查是否是周末
+        const dayOfWeek = new Date(year, month, dayCounter).getDay();
+        if (dayOfWeek === 0 || dayOfWeek === 6) {
+          dayCell.classList.add('weekend');
+        }
+        
         calendarGrid.appendChild(dayCell);
 
         weeklyTotal += hours;
@@ -111,14 +143,6 @@ function renderCalendar(date) {
   }
 
   document.getElementById('monthlyTotalHours').textContent = `${monthlyTotal.toFixed(2)}h`;
-  
-  // 为所有新的编辑按钮添加事件监听器
-  document.querySelectorAll('.edit-button').forEach(button => {
-    button.addEventListener('click', (e) => {
-      const dateStr = e.target.getAttribute('data-date');
-      showEditModal(dateStr);
-    });
-  });
 }
 
 // 将时间戳转换为 HH:mm 格式

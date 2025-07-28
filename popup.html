@@ -14,57 +14,216 @@
     }
 
     body {
-      width: 500px;
-      padding: 10px;
+      width: 533px;
+      min-width: 400px;
+      max-width: 600px;
+      padding: 8px;
       background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
       color: #333;
-      min-height: 100vh;
+      min-height: 500px;
+      font-size: 12px;
+    }
+
+    /* 统一的日历网格样式 */
+    #calendarGrid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 1px;
+      text-align: center;
+      width: 100%;
+    }
+
+    .calendar-cell {
+      padding: 4px 2px;
+      border-radius: 4px;
+      font-size: 11px;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+      min-height: 47px; /* 从35px改为47px */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .day-header {
+      font-weight: 600;
+      color: #4A90E2;
+      background: rgba(74, 144, 226, 0.08);
+      padding: 6px 2px;
+      font-size: 10px;
+      min-height: 20px;
+    }
+
+    /* 响应式调整 */
+    @media (max-width: 650px) {
+      body {
+        width: 100%;
+        min-width: 500px;
+        padding: 6px;
+      }
+
+      .calendar-container {
+        padding: 10px;
+      }
+
+      .calendar-cell {
+        padding: 3px 1px;
+        font-size: 10px;
+        min-height: 40px; /* 从30px改为40px */
+      }
+    }
+
+    @media (max-width: 450px) {
+      body {
+        width: 100%;
+        padding: 6px;
+      }
+
+      .calendar-container {
+        padding: 10px;
+      }
+
+      .calendar-cell {
+        padding: 3px 1px;
+        font-size: 10px;
+        min-height: 37px; /* 新增：28px的4/3 */
+      }
+    }
+      .day-header {
+        min-height: 20px;
+      }
+
+    @media (max-width: 450px) {
+      .calendar-cell {
+        padding: 3px 1px;
+        font-size: 10px;
+        min-height: 37px;
+      }
+      
+      .day-header {
+        min-height: 18px; /* 在极小屏幕下稍微调整title行 */
+      }
+    }
+    .today .date-display {
+      position: relative;
+      z-index: 2;
+    }
+
+    .today::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(74, 144, 226, 0.15), rgba(94, 96, 206, 0.15));
+      border-radius: 4px;
+      z-index: 1;
+    }
+
+    .today .date-display::after {
+      content: "今日";
+      position: absolute;
+      top: -15px; /* 调整到左上角 */
+      left: -15px; /* 调整到左上角 */
+      background: #E53E3E;
+      color: white;
+      font-size: 8px;
+      padding: 1px 3px;
+      border-radius: 6px;
+      z-index: 3;
+    }
+
+    /* 响应式调整 */
+    @media (max-width: 650px) {
+      body {
+        width: 100%;
+        min-width: 350px; /* 调整最小宽度 */
+        padding: 6px;
+      }
+
+      .calendar-container {
+        padding: 10px;
+      }
+
+      .calendar-cell {
+        padding: 3px 1px;
+        font-size: 10px;
+        min-height: 30px;
+      }
+    }
+
+    @media (max-width: 450px) {
+      body {
+        width: 100%;
+        padding: 6px;
+        min-width: 300px;
+      }
+
+      .calendar-container {
+        padding: 10px;
+      }
+
+      .calendar-cell {
+        padding: 3px 1px;
+        font-size: 10px;
+        min-height: 28px;
+      }
+      
+      .edit-button {
+        font-size: 7px;
+        padding: 1px 2px;
+        height: 10px;
+      }
     }
 
     .container {
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 8px;
     }
 
     .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 0;
+      padding: 6px 0;
       border-bottom: 1px solid rgba(0, 0, 0, 0.08);
     }
 
     .app-title {
-      font-size: 22px;
+      font-size: 16px;
       font-weight: 700;
       background: linear-gradient(90deg, #4A90E2, #5E60CE);
       -webkit-background-clip: text;
+      background-clip: text;
       -webkit-text-fill-color: transparent;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
 
     .app-title::before {
       content: "⏱";
-      font-size: 24px;
+      font-size: 18px;
     }
 
     #timeButton {
-      padding: 12px 24px;
-      font-size: 16px;
+      padding: 8px 16px;
+      font-size: 12px;
       font-weight: 600;
       cursor: pointer;
       background: linear-gradient(135deg, #4A90E2, #5E60CE);
       color: white;
       border: none;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
       transition: all 0.3s ease;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
 
     #timeButton::before {
@@ -72,15 +231,15 @@
     }
 
     #timeButton:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(74, 144, 226, 0.4);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
     }
 
     .calendar-container {
       background: white;
-      border-radius: 12px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+      padding: 12px;
       overflow: hidden;
     }
 
@@ -88,22 +247,22 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
+      margin-bottom: 12px;
     }
 
     .nav-buttons {
       display: flex;
-      gap: 10px;
+      gap: 6px;
     }
 
     .nav-button {
-      width: 36px;
-      height: 36px;
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
       border: none;
       background: #f0f4f8;
       color: #4A90E2;
-      font-size: 16px;
+      font-size: 12px;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -121,63 +280,58 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 5px;
+      gap: 3px;
     }
 
     #monthYear {
-      font-size: 18px;
+      font-size: 14px;
       font-weight: 600;
       color: #2d3748;
     }
 
-    .month-total {
-      font-size: 14px;
-      background: #edf2f7;
-      padding: 4px 12px;
-      border-radius: 20px;
-      color: #4A90E2;
-      font-weight: 600;
-    }
-
-    /* 修正日历列宽问题 */
+    /* 统一的日历网格样式 */
     #calendarGrid {
       display: grid;
-      grid-template-columns: repeat(8, auto); /* 8列等宽 */
-      gap: 3px;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 1px;
       text-align: center;
+      width: 100%;
     }
 
     .calendar-cell {
-      padding: 10px 5px;
-      border-radius: 8px;
-      font-size: 13px;
+      padding: 4px 2px;
+      border-radius: 4px;
+      font-size: 11px;
       transition: all 0.2s;
       position: relative;
       overflow: hidden;
-      min-height: 70px; /* 确保单元格高度一致 */
+      min-height: 35px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
     }
 
     .day-header {
       font-weight: 600;
       color: #4A90E2;
       background: rgba(74, 144, 226, 0.08);
-      padding: 12px 5px;
+      padding: 6px 2px;
+      font-size: 10px;
+      min-height: 20px;
     }
 
-    /* 修改weekend类，添加红色文字颜色 */
     .weekend {
       background: rgba(229, 62, 62, 0.05);
-      color: #E53E3E; /* 新增红色文字颜色 */
+      color: #E53E3E;
     }
 
-    /* 可选：增强周末日期的视觉效果 */
     .weekend:hover {
       background: #E53E3E;
       color: white;
-      transform: scale(1.05);
+      transform: scale(1.02);
     }
 
-    /* 覆盖日期显示的默认颜色 */
     .calendar-cell.weekend .date-display {
       color: #E53E3E !important;
     }
@@ -186,57 +340,81 @@
       font-weight: 700;
       background: rgba(94, 96, 206, 0.1);
       color: #5E60CE;
-      padding: 10px 5px;
-    }
-
-    .calendar-cell:not(.day-header):not(.week-total) {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      cursor: pointer;
-    }
-
-    .calendar-cell:not(.day-header):not(.week-total):hover {
-      background: #ebf8ff;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(74, 144, 226, 0.1);
+      padding: 4px 2px;
+      font-size: 10px;
     }
 
     .cell-content {
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 1px;
       height: 100%;
-      justify-content: space-between;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      cursor: pointer;
     }
 
     .date-display {
       font-weight: 600;
       color: #2d3748;
-      font-size: 14px;
+      font-size: 11px;
+      margin-bottom: 0;
     }
 
     .hours-display {
       color: #4A90E2;
       font-weight: 500;
-      font-size: 12px;
+      font-size: 9px;
       background: rgba(74, 144, 226, 0.1);
-      padding: 2px 5px;
-      border-radius: 10px;
+      padding: 1px 3px;
+      border-radius: 6px;
       margin: 0 auto;
       width: fit-content;
+      margin-top: 0;
+    }
+
+    /* 移除编辑按钮相关样式 */
+    .edit-button {
+      display: none;
+    }
+
+    /* 增强日历单元格的点击效果 */
+    .calendar-cell:not(.day-header):not(.week-total) {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .calendar-cell:not(.day-header):not(.week-total):hover {
+      background: #ebf8ff;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(74, 144, 226, 0.1);
+      border-color: #4A90E2;
+    }
+
+    .calendar-cell:not(.day-header):not(.week-total):active {
+      transform: translateY(0);
+      box-shadow: 0 1px 2px rgba(74, 144, 226, 0.2);
     }
 
     .edit-button {
-      margin-top: 5px;
-      font-size: 11px;
-      padding: 3px 8px;
+      margin-top: 2px;
+      font-size: 8px;
+      padding: 1px 3px;
       cursor: pointer;
       background: rgba(74, 144, 226, 0.1);
       color: #4A90E2;
       border: none;
-      border-radius: 4px;
+      border-radius: 2px;
       transition: all 0.2s;
       font-weight: 600;
+      min-width: 20px;
+      height: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .edit-button:hover {
@@ -257,39 +435,82 @@
       right: 0;
       bottom: 0;
       background: linear-gradient(135deg, rgba(74, 144, 226, 0.15), rgba(94, 96, 206, 0.15));
-      border-radius: 8px;
+      border-radius: 4px;
       z-index: 1;
     }
 
     .today .date-display::after {
       content: "今日";
       position: absolute;
-      top: -8px;
-      right: -8px;
+      top: -6px;
+      right: -6px;
       background: #E53E3E;
       color: white;
-      font-size: 10px;
-      padding: 2px 6px;
-      border-radius: 10px;
+      font-size: 8px;
+      padding: 1px 3px;
+      border-radius: 6px;
       z-index: 3;
+    }
+
+    .summary-info {
+      margin-top: 8px;
+      padding: 8px;
+      background: #f0f7ff;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .summary-item {
+      text-align: center;
+    }
+
+    .summary-value {
+      font-size: 14px;
+      font-weight: 700;
+      color: #4A90E2;
+    }
+
+    .summary-label {
+      font-size: 10px;
+      color: #666;
+    }
+
+    /* 响应式调整 */
+    @media (max-width: 650px) {
+      body {
+        width: 100%;
+        min-width: 500px;
+        padding: 6px;
+      }
+
+      .calendar-container {
+        padding: 10px;
+      }
+
+      .calendar-cell {
+        padding: 3px 1px;
+        font-size: 10px;
+        min-height: 30px;
+      }
     }
 
     .footer {
       display: flex;
       justify-content: flex-end;
-      gap: 12px;
-      margin-top: 5px;
+      gap: 8px;
+      margin-top: 4px;
     }
 
     #importButton, #exportButton {
-      padding: 8px 16px;
-      font-size: 14px;
+      padding: 6px 12px;
+      font-size: 11px;
       cursor: pointer;
-      border-radius: 6px;
+      border-radius: 4px;
       font-weight: 600;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
       transition: all 0.2s;
       border: 1px solid #e2e8f0;
     }
@@ -302,7 +523,7 @@
     #importButton:hover {
       background: #f0f7ff;
       transform: translateY(-1px);
-      box-shadow: 0 2px 8px rgba(74, 144, 226, 0.15);
+      box-shadow: 0 2px 6px rgba(74, 144, 226, 0.15);
     }
 
     #exportButton {
@@ -313,7 +534,7 @@
 
     #exportButton:hover {
       transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(56, 161, 105, 0.3);
+      box-shadow: 0 3px 8px rgba(56, 161, 105, 0.3);
     }
 
     /* 模态框样式 */
@@ -332,17 +553,62 @@
 
     .modal-content {
       background: white;
-      width: 90%;
-      max-width: 400px;
-      border-radius: 16px;
+      width: 60%; /* 原来90%的2/3 */
+      max-width: 267px; /* 原来400px的2/3 */
+      min-width: 200px; /* 添加最小宽度确保在小屏幕下可用 */
+      border-radius: 12px;
       overflow: hidden;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 16px 32px rgba(0, 0, 0, 0.2);
       animation: modalAppear 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      margin: 0 auto; /* 确保居中 */
+    }
+
+    /* 添加响应式支持 */
+    @media (max-width: 450px) {
+      .modal-content {
+        width: 85%; /* 在小屏幕下适当增加宽度 */
+        max-width: 250px;
+        min-width: 180px;
+      }
+      
+      .modal-header {
+        padding: 12px; /* 减少内边距 */
+      }
+      
+      .modal-title {
+        font-size: 14px; /* 减小标题字体 */
+      }
+      
+      .modal-body {
+        padding: 15px; /* 减少内边距 */
+      }
+      
+      .form-group input {
+        padding: 8px 10px; /* 减少输入框内边距 */
+        font-size: 13px;
+      }
+      
+      .modal-footer {
+        padding: 10px 15px; /* 减少底部内边距 */
+      }
+      
+      .modal-button {
+        padding: 8px; /* 减少按钮内边距 */
+        font-size: 11px;
+      }
+    }
+
+    @media (max-width: 320px) {
+      .modal-content {
+        width: 95%; /* 在极小屏幕下进一步调整 */
+        max-width: 200px;
+        min-width: 160px;
+      }
     }
 
     .modal-header {
       background: linear-gradient(90deg, #4A90E2, #5E60CE);
-      padding: 20px;
+      padding: 16px;
       color: white;
       display: flex;
       justify-content: space-between;
@@ -350,7 +616,7 @@
     }
 
     .modal-title {
-      font-size: 20px;
+      font-size: 16px;
       font-weight: 600;
     }
 
@@ -358,7 +624,7 @@
       background: none;
       border: none;
       color: white;
-      font-size: 28px;
+      font-size: 24px;
       cursor: pointer;
       transition: transform 0.2s;
     }
@@ -368,26 +634,27 @@
     }
 
     .modal-body {
-      padding: 25px;
+      padding: 20px;
     }
 
     .form-group {
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
 
     .form-group label {
       display: block;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       font-weight: 500;
       color: #4A5568;
+      font-size: 12px;
     }
 
     .form-group input {
       width: 100%;
-      padding: 12px 15px;
+      padding: 10px 12px;
       border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      font-size: 16px;
+      border-radius: 6px;
+      font-size: 14px;
       transition: all 0.2s;
     }
 
@@ -399,20 +666,21 @@
 
     .modal-footer {
       display: flex;
-      gap: 12px;
-      padding: 15px 25px;
+      gap: 10px;
+      padding: 12px 20px;
       background: #f8fafc;
       border-top: 1px solid #e2e8f0;
     }
 
     .modal-button {
       flex: 1;
-      padding: 12px;
-      border-radius: 8px;
+      padding: 10px;
+      border-radius: 6px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
       border: none;
+      font-size: 12px;
     }
 
     #saveTime {
@@ -421,8 +689,8 @@
     }
 
     #saveTime:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+      transform: translateY(-1px);
+      box-shadow: 0 3px 8px rgba(74, 144, 226, 0.3);
     }
 
     #cancelEdit {
@@ -450,16 +718,23 @@
     @media (max-width: 450px) {
       body {
         width: 100%;
-        padding: 10px;
+        padding: 6px;
       }
 
       .calendar-container {
-        padding: 15px;
+        padding: 10px;
       }
 
       .calendar-cell {
-        padding: 8px 3px;
-        font-size: 12px;
+        padding: 3px 1px;
+        font-size: 10px;
+        min-height: 28px;
+      }
+      
+      .edit-button {
+        font-size: 7px;
+        padding: 1px 2px;
+        height: 10px;
       }
     }
 
@@ -467,20 +742,20 @@
     .status-indicator {
       display: flex;
       justify-content: center;
-      margin-top: 10px;
-      gap: 15px;
+      margin-top: 8px;
+      gap: 12px;
     }
 
     .status-item {
       display: flex;
       align-items: center;
-      gap: 5px;
-      font-size: 12px;
+      gap: 4px;
+      font-size: 10px;
     }
 
     .status-color {
-      width: 12px;
-      height: 12px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
     }
 
@@ -495,31 +770,6 @@
 
     .week-total-color {
       background: rgba(94, 96, 206, 0.1);
-    }
-
-    /* 汇总信息 */
-    .summary-info {
-      margin-top: 15px;
-      padding: 10px;
-      background: #f0f7ff;
-      border-radius: 8px;
-      display: flex;
-      justify-content: space-between;
-    }
-
-    .summary-item {
-      text-align: center;
-    }
-
-    .summary-value {
-      font-size: 18px;
-      font-weight: 700;
-      color: #4A90E2;
-    }
-
-    .summary-label {
-      font-size: 12px;
-      color: #666;
     }
   </style>
 </head>
@@ -554,7 +804,7 @@
       <div class="calendar-cell day-header">周五</div>
       <div class="calendar-cell day-header weekend">周六</div>
       <div class="calendar-cell day-header">周汇总</div>
-
+      
       <!-- 日历内容将通过JavaScript动态生成 -->
     </div>
 
@@ -617,263 +867,6 @@
   </div>
 </div>
 
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // 获取元素
-    const timeButton = document.getElementById('timeButton');
-    const prevMonthBtn = document.getElementById('prevMonth');
-    const nextMonthBtn = document.getElementById('nextMonth');
-    const importBtn = document.getElementById('importButton');
-    const exportBtn = document.getElementById('exportButton');
-    const modal = document.getElementById('editModal');
-    const closeBtn = document.querySelector('.close-button');
-    const cancelBtn = document.getElementById('cancelEdit');
-    const saveBtn = document.getElementById('saveTime');
-    const calendarGrid = document.getElementById('calendarGrid');
-    const monthYearEl = document.getElementById('monthYear');
-    const monthlyTotalHoursEl = document.getElementById('monthlyTotalHours');
-    const workDaysEl = document.getElementById('workDays');
-    const avgHoursEl = document.getElementById('avgHours');
-
-    // 当前日期
-    let currentDate = new Date();
-    let currentMonth = currentDate.getMonth();
-    let currentYear = currentDate.getFullYear();
-
-    // 工时数据
-    let workHoursData = {};
-
-    // 初始化
-    updateCalendar();
-
-    // 更新日历显示
-    function updateCalendar() {
-      // 更新月份标题
-      monthYearEl.textContent = `${currentYear}年${currentMonth + 1}月`;
-
-      // 清空日历内容（保留标题）
-      while (calendarGrid.children.length > 8) {
-        calendarGrid.removeChild(calendarGrid.lastChild);
-      }
-
-      // 获取当月第一天
-      const firstDay = new Date(currentYear, currentMonth, 1);
-      // 获取当月最后一天
-      const lastDay = new Date(currentYear, currentMonth + 1, 0);
-      // 获取当月天数
-      const daysInMonth = lastDay.getDate();
-      // 获取当月第一天是星期几（0为周日）
-      const startDay = firstDay.getDay();
-
-      // 计算总周数
-      const weeks = Math.ceil((startDay + daysInMonth) / 7);
-
-      let totalMonthHours = 0;
-      let workDays = 0;
-      let dateCounter = 1;
-
-      // 生成日历
-      for (let week = 0; week < weeks; week++) {
-        let weekTotalHours = 0;
-
-        for (let day = 0; day < 7; day++) {
-          const cellIndex = week * 7 + day;
-
-          if (week === 0 && day < startDay) {
-            // 上个月日期留空
-            const emptyCell = document.createElement('div');
-            emptyCell.classList.add('calendar-cell');
-            calendarGrid.appendChild(emptyCell);
-            continue;
-          }
-
-          if (dateCounter > daysInMonth) {
-            // 下个月日期留空
-            const emptyCell = document.createElement('div');
-            emptyCell.classList.add('calendar-cell');
-            calendarGrid.appendChild(emptyCell);
-            continue;
-          }
-
-          // 创建日期单元格
-          const dateCell = document.createElement('div');
-          const dateStr = `${currentYear}-${currentMonth + 1}-${dateCounter}`;
-          const dayOfWeek = new Date(currentYear, currentMonth, dateCounter).getDay();
-          const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-          const isToday = currentDate.getDate() === dateCounter &&
-                  currentDate.getMonth() === currentMonth &&
-                  currentDate.getFullYear() === currentYear;
-
-          if (isToday) {
-            dateCell.classList.add('today');
-          }
-          if (isWeekend) {
-            dateCell.classList.add('weekend');
-          }
-
-          dateCell.classList.add('calendar-cell');
-
-          // 获取工时数据（默认为0）
-          let hours = workHoursData[dateStr] || 0;
-
-          // 更新统计信息
-          if (hours > 0) {
-            weekTotalHours += parseFloat(hours);
-            workDays++;
-          }
-
-          // 添加到月总工时
-          totalMonthHours += parseFloat(hours);
-
-          dateCell.innerHTML = `
-              <div class="cell-content">
-                <div class="date-display">${dateCounter}</div>
-                ${hours > 0 ? `<div class="hours-display">${hours}h</div>` : ''}
-                <button class="edit-button">编辑</button>
-              </div>
-            `;
-
-          calendarGrid.appendChild(dateCell);
-          dateCounter++;
-        }
-
-        // 添加周汇总单元格
-        const weekTotalCell = document.createElement('div');
-        weekTotalCell.classList.add('calendar-cell', 'week-total');
-        weekTotalCell.innerHTML = `
-            <div class="cell-content">
-              <div class="hours-display">${weekTotalHours.toFixed(2)}h</div>
-            </div>
-          `;
-        calendarGrid.appendChild(weekTotalCell);
-      }
-
-      // 更新月总工时
-      monthlyTotalHoursEl.textContent = totalMonthHours.toFixed(2);
-      workDaysEl.textContent = workDays;
-      avgHoursEl.textContent = workDays > 0 ? (totalMonthHours / workDays).toFixed(2) : '0';
-
-      // 重新绑定编辑按钮事件
-      bindEditButtons();
-    }
-
-    // 绑定编辑按钮事件
-    function bindEditButtons() {
-      document.querySelectorAll('.edit-button').forEach(button => {
-        button.addEventListener('click', function(e) {
-          e.stopPropagation();
-          const dateCell = this.closest('.calendar-cell');
-          const date = dateCell.querySelector('.date-display').textContent;
-
-          const cellDate = new Date(currentYear, currentMonth, parseInt(date));
-          const dayNames = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
-          const dayName = dayNames[cellDate.getDay()];
-          const dateStr = `${currentYear}-${currentMonth + 1}-${date}`;
-
-          document.getElementById('modalDate').value = `${currentYear}年${currentMonth + 1}月${date}日 (${dayName})`;
-
-          // 设置当前工时数据
-          const hoursDisplay = dateCell.querySelector('.hours-display');
-          if (hoursDisplay) {
-            const hours = parseFloat(hoursDisplay.textContent);
-            document.getElementById('startTime').value = '09:00';
-            document.getElementById('endTime').value = '17:00';
-          } else {
-            document.getElementById('startTime').value = '';
-            document.getElementById('endTime').value = '';
-          }
-
-          modal.style.display = 'flex';
-        });
-      });
-    }
-
-    // 关闭模态框
-    function closeModal() {
-      modal.style.display = 'none';
-    }
-
-    // 事件监听
-    closeBtn.addEventListener('click', closeModal);
-    cancelBtn.addEventListener('click', closeModal);
-
-    // 保存按钮点击事件
-    saveBtn.addEventListener('click', function() {
-      const startTime = document.getElementById('startTime').value;
-      const endTime = document.getElementById('endTime').value;
-
-      if (startTime && endTime) {
-        const start = new Date(`2000-01-01T${startTime}`);
-        const end = new Date(`2000-01-01T${endTime}`);
-        const diff = (end - start) / (1000 * 60 * 60); // 小时数
-
-        if (diff > 0) {
-          // 获取日期字符串
-          const dateStr = document.getElementById('modalDate').value;
-          const match = dateStr.match(/(\d+)年(\d+)月(\d+)日/);
-          if (match) {
-            const year = match[1];
-            const month = match[2];
-            const day = match[3];
-            const key = `${year}-${month}-${day}`;
-
-            // 保存工时数据
-            workHoursData[key] = diff.toFixed(2);
-            alert(`已保存 ${key} 的工时: ${diff.toFixed(2)}小时`);
-          }
-        } else {
-          alert('结束时间必须晚于开始时间');
-          return;
-        }
-      } else {
-        alert('请填写开始时间和结束时间');
-        return;
-      }
-
-      closeModal();
-      updateCalendar();
-    });
-
-    // 月导航
-    prevMonthBtn.addEventListener('click', function() {
-      currentMonth--;
-      if (currentMonth < 0) {
-        currentMonth = 11;
-        currentYear--;
-      }
-      updateCalendar();
-    });
-
-    nextMonthBtn.addEventListener('click', function() {
-      currentMonth++;
-      if (currentMonth > 11) {
-        currentMonth = 0;
-        currentYear++;
-      }
-      updateCalendar();
-    });
-
-    // 主按钮点击
-    timeButton.addEventListener('click', function() {
-      const today = new Date();
-      const dayNames = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
-      const dayName = dayNames[today.getDay()];
-      const dateStr = `${today.getFullYear()}年${today.getMonth()+1}月${today.getDate()}日 (${dayName})`;
-      document.getElementById('modalDate').value = dateStr;
-      document.getElementById('startTime').value = '';
-      document.getElementById('endTime').value = '';
-      modal.style.display = 'flex';
-    });
-
-    // 导入导出按钮
-    importBtn.addEventListener('click', function() {
-      alert('导入数据功能');
-    });
-
-    exportBtn.addEventListener('click', function() {
-      alert('导出数据功能');
-    });
-  });
-</script>
+<script src="popup.js"></script>
 </body>
 </html>
