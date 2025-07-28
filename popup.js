@@ -215,7 +215,7 @@ async function saveManualTime() {
 function exportToExcel() {
     // 准备CSV内容
     const headers = ['日期', '开始时间', '结束时间', '工作时长(小时)'];
-    let csvContent = headers.join(',') + '\n';
+    let csvContent = '\uFEFF' + headers.join(',') + '\n'; // 添加BOM标记确保UTF-8编码
 
     // 将数据按日期排序
     const sortedDates = Object.keys(workTimeData).sort();
@@ -237,7 +237,7 @@ function exportToExcel() {
         csvContent += row.join(',') + '\n';
     });
 
-    // 创建Blob对象
+    // 创建Blob对象，明确指定UTF-8编码
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = window.URL.createObjectURL(blob);
 
@@ -284,7 +284,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const reader = new FileReader();
 
       reader.onload = async (e) => {
-        const csv = e.target.result;
+        let csv = e.target.result;
+        
+        // 移除BOM标记（如果存在）
+        if (csv.charCodeAt(0) === 0xFEFF) {
+          csv = csv.slice(1);
+        }
+        
         const rows = csv.split('\n').slice(1); // 跳过表头
 
         // 清空现有数据
@@ -313,7 +319,8 @@ document.addEventListener('DOMContentLoaded', () => {
         renderCalendar(currentDisplayDate);
       };
 
-      reader.readAsText(file);
+      // 明确指定使用UTF-8编码读取文件
+      reader.readAsText(file, 'UTF-8');
     });
 
     document.body.appendChild(input);
