@@ -40,7 +40,8 @@
       transition: all 0.2s;
       position: relative;
       overflow: hidden;
-      min-height: 47px; /* 从35px改为47px */
+      aspect-ratio: 4/4; /* 设置宽高比为3:4，即高度是宽度的4/3 */
+      height: auto; /* 让高度自动计算 */
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -53,7 +54,17 @@
       background: rgba(74, 144, 226, 0.08);
       padding: 6px 2px;
       font-size: 10px;
-      min-height: 20px;
+      aspect-ratio: auto; /* 标题行不使用宽高比限制 */
+      min-height: 20px; /* 保持标题行固定高度 */
+    }
+
+    .week-total {
+      font-weight: 700;
+      background: rgba(94, 96, 206, 0.1);
+      color: #5E60CE;
+      padding: 4px 2px;
+      font-size: 10px;
+      aspect-ratio: 4/4; /* 周总计也使用相同比例 */
     }
 
     /* 响应式调整 */
@@ -71,24 +82,25 @@
       .calendar-cell {
         padding: 3px 1px;
         font-size: 10px;
-        min-height: 40px; /* 从30px改为40px */
+        aspect-ratio: 4/4; /* 保持4:3比例 */
+      }
+      
+      .day-header {
+        min-height: 18px; /* 稍微减小标题行高度 */
+        aspect-ratio: auto;
       }
     }
 
     @media (max-width: 450px) {
-      body {
-        width: 100%;
-        padding: 6px;
-      }
-
-      .calendar-container {
-        padding: 10px;
-      }
-
       .calendar-cell {
         padding: 3px 1px;
         font-size: 10px;
-        min-height: 37px; /* 新增：28px的4/3 */
+        aspect-ratio: 4/4; /* 保持4:3比例 */
+      }
+      
+      .day-header {
+        min-height: 16px;
+        aspect-ratio: auto;
       }
     }
       .day-header {
