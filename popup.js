@@ -318,20 +318,54 @@ document.addEventListener('DOMContentLoaded', () => {
         rows.forEach(row => {
           if (!row.trim()) return;
 
-          const [date, startTime, endTime, hours] = row.split(',');
+          // 更安全的CSV解析，处理可能的引号
+          const columns = row.split(',').map(col => col.replace(/^"|"$/g, '').trim());
+          
+          if (columns.length < 4) return; // 确保有足够的列
+          
+          const [date, startTime, endTime, hours] = columns;
 
-          // 解析开始和结束时间
-          const [year, month, day] = date.split('-').map(Number);
-          const [startHour, startMinute] = startTime.split(':').map(Number);
-          const [endHour, endMinute] = endTime.split(':').map(Number);
+          // 验证日期格式
+          if (!/^\d{4}-\d{1,2}-\d{1,2}$/.test(date)) {
+            console.warn(`跳过无效日期格式: ${date}`);
+            return;
+          }
 
-          const firstClickTs = new Date(year, month - 1, day, startHour, startMinute).getTime();
-          const lastClickTs = new Date(year, month - 1, day, endHour, endMinute).getTime();
+          // 验证时间格式
+          if (!/^\d{1,2}:\d{2}$/.test(startTime) || !/^\d{1,2}:\d{2}$/.test(endTime)) {
+            console.warn(`跳过无效时间格式: ${startTime} - ${endTime}`);
+            return;
+          }
 
-          workTimeData[date] = {
-            firstClick: firstClickTs,
-            lastClick: lastClickTs
-          };
+          try {
+            // 解析开始和结束时间
+            const [year, month, day] = date.split('-').map(Number);
+            const [startHour, startMinute] = startTime.split(':').map(Number);
+            const [endHour, endMinute] = endTime.split(':').map(Number);
+
+            // 验证数值范围
+            if (startHour < 0 || startHour > 23 || startMinute < 0 || startMinute > 59 ||
+                endHour < 0 || endHour > 23 || endMinute < 0 || endMinute > 59) {
+              console.warn(`跳过无效时间值: ${startTime} - ${endTime}`);
+              return;
+            }
+
+            const firstClickTs = new Date(year, month - 1, day, startHour, startMinute).getTime();
+            const lastClickTs = new Date(year, month - 1, day, endHour, endMinute).getTime();
+
+            // 验证时间戳是否有效
+            if (isNaN(firstClickTs) || isNaN(lastClickTs)) {
+              console.warn(`跳过无效时间戳: ${date}`);
+              return;
+            }
+
+            workTimeData[date] = {
+              firstClick: firstClickTs,
+              lastClick: lastClickTs
+            };
+          } catch (error) {
+            console.warn(`解析行时出错: ${row}`, error);
+          }
         });
 
         await saveData();
