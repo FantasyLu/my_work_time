@@ -70,6 +70,7 @@ function renderCalendar(date) {
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   
   let monthlyTotal = 0;
+  let workDaysCount = 0; // 添加工作天数计数器
   let weeklyTotal = 0;
   let dayCounter = 1;
 
@@ -86,6 +87,11 @@ function renderCalendar(date) {
         const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(dayCounter).padStart(2, '0')}`;
         const dayData = workTimeData[dateStr];
         const hours = dayData ? calculateWorkHours(dayData.firstClick, dayData.lastClick) : 0;
+        
+        // 如果有工作时间记录，增加工作天数
+        if (hours > 0) {
+          workDaysCount++;
+        }
         
         const dayCell = document.createElement('div');
         dayCell.classList.add('calendar-cell');
@@ -142,7 +148,13 @@ function renderCalendar(date) {
     weeklyTotal = 0;
   }
 
+  // 更新统计信息
   document.getElementById('monthlyTotalHours').textContent = `${monthlyTotal.toFixed(2)}h`;
+  document.getElementById('workDays').textContent = workDaysCount;
+  
+  // 计算日均工时
+  const avgHours = workDaysCount > 0 ? monthlyTotal / workDaysCount : 0;
+  document.getElementById('avgHours').textContent = `${avgHours.toFixed(2)}h`;
 }
 
 // 将时间戳转换为 HH:mm 格式
