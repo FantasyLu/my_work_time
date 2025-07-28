@@ -70,6 +70,7 @@ function renderCalendar(date) {
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   
   let monthlyTotal = 0;
+  let workDaysCount = 0; // 添加工作天数计数器
   let weeklyTotal = 0;
   let dayCounter = 1;
 
@@ -87,10 +88,47 @@ function renderCalendar(date) {
         const dayData = workTimeData[dateStr];
         const hours = dayData ? calculateWorkHours(dayData.firstClick, dayData.lastClick) : 0;
         
+        // 如果有工作时间记录，增加工作天数
+        if (hours > 0) {
+          workDaysCount++;
+        }
+        
         const dayCell = document.createElement('div');
         dayCell.classList.add('calendar-cell');
-        // 添加编辑按钮
-        dayCell.innerHTML = `<strong>${dayCounter}</strong><br>${hours.toFixed(2)}h <button class="edit-button" data-date="${dateStr}">编辑</button>`;
+        
+        // 创建单元格内容，移除编辑按钮
+        const cellContent = document.createElement('div');
+        cellContent.classList.add('cell-content');
+        
+        const dateDisplay = document.createElement('div');
+        dateDisplay.classList.add('date-display');
+        dateDisplay.textContent = dayCounter;
+        
+        const hoursDisplay = document.createElement('div');
+        hoursDisplay.classList.add('hours-display');
+        hoursDisplay.textContent = `${hours.toFixed(2)}h`;
+        
+        cellContent.appendChild(dateDisplay);
+        cellContent.appendChild(hoursDisplay);
+        dayCell.appendChild(cellContent);
+        
+        // 添加点击事件到整个单元格
+        dayCell.addEventListener('click', function() {
+          showEditModal(dateStr);
+        });
+        
+        // 检查是否是今天
+        const today = getTodayString();
+        if (dateStr === today) {
+          dayCell.classList.add('today');
+        }
+        
+        // 检查是否是周末
+        const dayOfWeek = new Date(year, month, dayCounter).getDay();
+        if (dayOfWeek === 0 || dayOfWeek === 6) {
+          dayCell.classList.add('weekend');
+        }
+        
         calendarGrid.appendChild(dayCell);
 
         weeklyTotal += hours;
@@ -110,15 +148,13 @@ function renderCalendar(date) {
     weeklyTotal = 0;
   }
 
+  // 更新统计信息
   document.getElementById('monthlyTotalHours').textContent = `${monthlyTotal.toFixed(2)}h`;
+  document.getElementById('workDays').textContent = workDaysCount;
   
-  // 为所有新的编辑按钮添加事件监听器
-  document.querySelectorAll('.edit-button').forEach(button => {
-    button.addEventListener('click', (e) => {
-      const dateStr = e.target.getAttribute('data-date');
-      showEditModal(dateStr);
-    });
-  });
+  // 计算日均工时
+  const avgHours = workDaysCount > 0 ? monthlyTotal / workDaysCount : 0;
+  document.getElementById('avgHours').textContent = `${avgHours.toFixed(2)}h`;
 }
 
 // 将时间戳转换为 HH:mm 格式
@@ -133,7 +169,14 @@ function showEditModal(dateStr) {
   currentlyEditingDate = dateStr;
   const dayData = workTimeData[dateStr];
 
-  modalDate.textContent = `编辑 ${dateStr} 的时间`;
+  // 将日期字符串转换为更友好的格式
+  const [year, month, day] = dateStr.split('-').map(Number);
+  const date = new Date(year, month - 1, day);
+  const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+  const weekday = weekdays[date.getDay()];
+  const formattedDate = `${year}年${month}月${day}日（${weekday})`;
+
+  modalDate.value = formattedDate;
   startTimeInput.value = dayData ? formatTime(dayData.firstClick) : '';
   endTimeInput.value = dayData ? formatTime(dayData.lastClick) : '';
 
@@ -191,7 +234,7 @@ async function saveManualTime() {
 function exportToExcel() {
     // 准备CSV内容
     const headers = ['日期', '开始时间', '结束时间', '工作时长(小时)'];
-    let csvContent = headers.join(',') + '\n';
+    let csvContent = '\uFEFF' + headers.join(',') + '\n'; // 添加BOM标记确保UTF-8编码
 
     // 将数据按日期排序
     const sortedDates = Object.keys(workTimeData).sort();
@@ -213,7 +256,7 @@ function exportToExcel() {
         csvContent += row.join(',') + '\n';
     });
 
-    // 创建Blob对象
+    // 创建Blob对象，明确指定UTF-8编码
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = window.URL.createObjectURL(blob);
 
@@ -260,7 +303,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const reader = new FileReader();
 
       reader.onload = async (e) => {
-        const csv = e.target.result;
+        let csv = e.target.result;
+        
+        // 移除BOM标记（如果存在）
+        if (csv.charCodeAt(0) === 0xFEFF) {
+          csv = csv.slice(1);
+        }
+        
         const rows = csv.split('\n').slice(1); // 跳过表头
 
         // 清空现有数据
@@ -269,27 +318,62 @@ document.addEventListener('DOMContentLoaded', () => {
         rows.forEach(row => {
           if (!row.trim()) return;
 
-          const [date, startTime, endTime, hours] = row.split(',');
+          // 更安全的CSV解析，处理可能的引号
+          const columns = row.split(',').map(col => col.replace(/^"|"$/g, '').trim());
+          
+          if (columns.length < 4) return; // 确保有足够的列
+          
+          const [date, startTime, endTime, hours] = columns;
 
-          // 解析开始和结束时间
-          const [year, month, day] = date.split('-').map(Number);
-          const [startHour, startMinute] = startTime.split(':').map(Number);
-          const [endHour, endMinute] = endTime.split(':').map(Number);
+          // 验证日期格式
+          if (!/^\d{4}-\d{1,2}-\d{1,2}$/.test(date)) {
+            console.warn(`跳过无效日期格式: ${date}`);
+            return;
+          }
 
-          const firstClickTs = new Date(year, month - 1, day, startHour, startMinute).getTime();
-          const lastClickTs = new Date(year, month - 1, day, endHour, endMinute).getTime();
+          // 验证时间格式
+          if (!/^\d{1,2}:\d{2}$/.test(startTime) || !/^\d{1,2}:\d{2}$/.test(endTime)) {
+            console.warn(`跳过无效时间格式: ${startTime} - ${endTime}`);
+            return;
+          }
 
-          workTimeData[date] = {
-            firstClick: firstClickTs,
-            lastClick: lastClickTs
-          };
+          try {
+            // 解析开始和结束时间
+            const [year, month, day] = date.split('-').map(Number);
+            const [startHour, startMinute] = startTime.split(':').map(Number);
+            const [endHour, endMinute] = endTime.split(':').map(Number);
+
+            // 验证数值范围
+            if (startHour < 0 || startHour > 23 || startMinute < 0 || startMinute > 59 ||
+                endHour < 0 || endHour > 23 || endMinute < 0 || endMinute > 59) {
+              console.warn(`跳过无效时间值: ${startTime} - ${endTime}`);
+              return;
+            }
+
+            const firstClickTs = new Date(year, month - 1, day, startHour, startMinute).getTime();
+            const lastClickTs = new Date(year, month - 1, day, endHour, endMinute).getTime();
+
+            // 验证时间戳是否有效
+            if (isNaN(firstClickTs) || isNaN(lastClickTs)) {
+              console.warn(`跳过无效时间戳: ${date}`);
+              return;
+            }
+
+            workTimeData[date] = {
+              firstClick: firstClickTs,
+              lastClick: lastClickTs
+            };
+          } catch (error) {
+            console.warn(`解析行时出错: ${row}`, error);
+          }
         });
 
         await saveData();
         renderCalendar(currentDisplayDate);
       };
 
-      reader.readAsText(file);
+      // 明确指定使用UTF-8编码读取文件
+      reader.readAsText(file, 'UTF-8');
     });
 
     document.body.appendChild(input);
