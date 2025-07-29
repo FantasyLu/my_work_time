@@ -4,6 +4,9 @@
   "version": "1.0",
   "description": "记录每日工作时间的Chrome插件",
   "permissions": ["storage"],
+  "host_permissions": [
+    "https://api.jiejiariapi.com/*"
+  ],
   "action": {
     "default_popup": "popup.html"
   },
