@@ -9,7 +9,7 @@ let modal, closeModal, saveTime, cancelEdit, modalDate, startTimeInput, endTimeI
 async function loadData() {
   const result = await chrome.storage.local.get(['workTimeData']);
   workTimeData = result.workTimeData || {};
-  renderCalendar(currentDisplayDate);
+  await renderCalendar(currentDisplayDate);
 }
 
 // 保存数据
@@ -37,7 +37,7 @@ async function recordTime() {
   }
   
   await saveData();
-  renderCalendar(currentDisplayDate);
+  await renderCalendar(currentDisplayDate);
 }
 
 // 计算工作时间（小时）
@@ -48,11 +48,14 @@ function calculateWorkHours(firstClick, lastClick) {
 }
 
 // 渲染日历
-function renderCalendar(date) {
+async function renderCalendar(date) {
   const year = date.getFullYear();
   const month = date.getMonth();
 
   document.getElementById('monthYear').textContent = `${year}年 ${month + 1}月`;
+
+  // 获取当年的节假日数据
+  const holidayData = await fetchHolidays(year);
 
   const calendarGrid = document.getElementById('calendarGrid');
   calendarGrid.innerHTML = '';
@@ -123,9 +126,22 @@ function renderCalendar(date) {
           dayCell.classList.add('today');
         }
         
-        // 检查是否是周末
+        // 检查是否是周末和节假日
         const dayOfWeek = new Date(year, month, dayCounter).getDay();
-        if (dayOfWeek === 0 || dayOfWeek === 6) {
+        const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+        const isHolidayDay = isHoliday(year, month + 1, dayCounter, holidayData);
+        
+        // 检查该日期在节假日API中的状态
+        const dateStr2 = `${year}-${String(month + 1).padStart(2, '0')}-${String(dayCounter).padStart(2, '0')}`;
+        const holidayInfo = holidayData[dateStr2];
+        
+        // 标红逻辑：
+        // 1. 如果是节假日（isOffDay=true），标红
+        // 2. 如果是周末且没有节假日信息，标红
+        // 3. 如果是周末但节假日API标记为isOffDay=false（调休补班），不标红
+        if (isHolidayDay) {
+          dayCell.classList.add('holiday');
+        } else if (isWeekend && (!holidayInfo || holidayInfo.isOffDay !== false)) {
           dayCell.classList.add('weekend');
         }
         
@@ -148,13 +164,10 @@ function renderCalendar(date) {
     weeklyTotal = 0;
   }
 
-  // 更新统计信息
-  document.getElementById('monthlyTotalHours').textContent = `${monthlyTotal.toFixed(2)}h`;
+  // 更新汇总信息
+  document.getElementById('monthlyTotalHours').textContent = monthlyTotal.toFixed(2);
   document.getElementById('workDays').textContent = workDaysCount;
-  
-  // 计算日均工时
-  const avgHours = workDaysCount > 0 ? monthlyTotal / workDaysCount : 0;
-  document.getElementById('avgHours').textContent = `${avgHours.toFixed(2)}h`;
+  document.getElementById('avgHours').textContent = workDaysCount > 0 ? (monthlyTotal / workDaysCount).toFixed(2) : '0.00';
 }
 
 // 将时间戳转换为 HH:mm 格式
@@ -226,7 +239,7 @@ async function saveManualTime() {
   }
 
   await saveData();
-  renderCalendar(currentDisplayDate);
+  await renderCalendar(currentDisplayDate);
   hideEditModal();
 }
 
@@ -403,3 +416,39 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+
+// 节假日数据缓存
+let holidayCache = {};
+
+// 获取指定年份的节假日数据
+async function fetchHolidays(year) {
+  // 如果缓存中已有该年份数据，直接返回
+  if (holidayCache[year]) {
+    return holidayCache[year];
+  }
+
+  try {
+    const response = await fetch(`https://api.jiejiariapi.com/v1/holidays/${year}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    
+    // 缓存数据
+    holidayCache[year] = data;
+    return data;
+  } catch (error) {
+    console.warn(`获取${year}年节假日数据失败:`, error);
+    return {};
+  }
+}
+
+// 检查指定日期是否为节假日
+function isHoliday(year, month, day, holidayData) {
+  const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+  const holiday = holidayData[dateStr];
+  
+  // 返回是否为休息日（放假日）
+  return holiday && holiday.isOffDay === true;
+}
