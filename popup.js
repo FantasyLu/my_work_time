@@ -94,10 +94,13 @@ function createStarEffect(button, event) {
     const dx = Math.cos(angle * Math.PI / 180) * distance;
     const dy = Math.sin(angle * Math.PI / 180) * distance;
     
+    emojiElement.style.position = 'fixed';
     emojiElement.style.left = centerX + 'px';
     emojiElement.style.top = centerY + 'px';
     emojiElement.style.setProperty('--dx', dx + 'px');
     emojiElement.style.setProperty('--dy', dy + 'px');
+    emojiElement.style.pointerEvents = 'none';
+    emojiElement.style.zIndex = '10000';
     
     document.body.appendChild(emojiElement);
     
@@ -143,6 +146,59 @@ function createRippleEffect(button, event) {
       ripple.parentNode.removeChild(ripple);
     }
   }, 800);
+}
+
+// 创建全局点击星星效果
+function createGlobalStarEffect(event) {
+  // 确保获取正确的鼠标位置
+  const centerX = event.clientX;
+  const centerY = event.clientY;
+  
+  // 定义适合全局使用的emoji
+  const globalEmojis = [
+    '✨', '⭐', '🌟', '💫'
+  ];
+  
+  // 创建3-4个emoji
+  const emojiCount = 3;
+  
+  for (let i = 0; i < emojiCount; i++) {
+    const emojiElement = document.createElement('div');
+    emojiElement.className = 'star global-star';
+    
+    // 随机选择emoji
+    const randomEmoji = globalEmojis[Math.floor(Math.random() * globalEmojis.length)];
+    emojiElement.textContent = randomEmoji;
+    
+    // 随机方向和距离
+    const angle = Math.random() * 360;
+    const distance = 20 + Math.random() * 15;
+    const dx = Math.cos(angle * Math.PI / 180) * distance;
+    const dy = Math.sin(angle * Math.PI / 180) * distance;
+    
+    // 设置初始位置（使用fixed定位确保位置正确）
+    emojiElement.style.position = 'fixed';
+    emojiElement.style.left = centerX + 'px';
+    emojiElement.style.top = centerY + 'px';
+    emojiElement.style.setProperty('--dx', dx + 'px');
+    emojiElement.style.setProperty('--dy', dy + 'px');
+    emojiElement.style.pointerEvents = 'none';
+    emojiElement.style.zIndex = '10000';
+    
+    document.body.appendChild(emojiElement);
+    
+    // 立即启动动画（减少延迟）
+    setTimeout(() => {
+      emojiElement.classList.add('animate');
+    }, i * 20);
+    
+    // 动画结束后移除元素
+    setTimeout(() => {
+      if (emojiElement.parentNode) {
+        emojiElement.parentNode.removeChild(emojiElement);
+      }
+    }, 800 + i * 20);
+  }
 }
 
 // 计算工作时间（小时）
@@ -556,4 +612,47 @@ function isHoliday(year, month, day, holidayData) {
   
   // 返回是否为休息日（放假日）
   return holiday && holiday.isOffDay === true;
+}
+
+let globalStarEffectEnabled = true;
+
+// 修改全局点击事件
+document.addEventListener('click', function(event) {
+  if (!globalStarEffectEnabled) return;
+  
+  const clickedElement = event.target;
+  const isButton = clickedElement.id === 'timeButton' || clickedElement.closest('#timeButton');
+  const isModal = clickedElement.closest('.modal');
+  const isInteractive = clickedElement.tagName === 'BUTTON' || clickedElement.closest('button');
+  
+  if (!isButton && !isModal && !isInteractive) {
+    createGlobalStarEffect(event);
+  }
+});
+
+// 简单的提示信息函数
+function showToast(message) {
+  const toast = document.createElement('div');
+  toast.textContent = message;
+  toast.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    z-index: 10000;
+    opacity: 0;
+    transition: opacity 0.3s;
+  `;
+  
+  document.body.appendChild(toast);
+  
+  setTimeout(() => toast.style.opacity = '1', 10);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    setTimeout(() => document.body.removeChild(toast), 300);
+  }, 2000);
 }
