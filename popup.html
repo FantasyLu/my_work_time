@@ -24,7 +24,6 @@
       font-size: 12px;
     }
 
-    /* 统一的日历网格样式 */
     #calendarGrid {
       display: grid;
       grid-template-columns: repeat(8, 1fr);
@@ -40,8 +39,8 @@
       transition: all 0.2s;
       position: relative;
       overflow: hidden;
-      aspect-ratio: 4/4; /* 设置宽高比为3:4，即高度是宽度的4/3 */
-      height: auto; /* 让高度自动计算 */
+      aspect-ratio: 4/4;
+      height: auto;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -65,30 +64,6 @@
       padding: 4px 2px;
       font-size: 10px;
       aspect-ratio: 4/4; /* 周总计也使用相同比例 */
-    }
-
-    /* 响应式调整 */
-    @media (max-width: 650px) {
-      body {
-        width: 100%;
-        min-width: 500px;
-        padding: 6px;
-      }
-
-      .calendar-container {
-        padding: 10px;
-      }
-
-      .calendar-cell {
-        padding: 3px 1px;
-        font-size: 10px;
-        aspect-ratio: 4/4; /* 保持4:3比例 */
-      }
-      
-      .day-header {
-        min-height: 18px; /* 稍微减小标题行高度 */
-        aspect-ratio: auto;
-      }
     }
 
     @media (max-width: 450px) {
@@ -118,41 +93,6 @@
         min-height: 18px; /* 在极小屏幕下稍微调整title行 */
       }
     }
-    .today .date-display {
-      position: relative;
-      z-index: 2;
-    }
-
-    .today::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(135deg, rgba(255, 255, 0, 0.15), rgba(255, 215, 0, 0.15));
-      border-radius: 4px;
-      z-index: 1;
-    }
-
-    /* 响应式调整 */
-    @media (max-width: 650px) {
-      body {
-        width: 100%;
-        min-width: 350px; /* 调整最小宽度 */
-        padding: 6px;
-      }
-
-      .calendar-container {
-        padding: 10px;
-      }
-
-      .calendar-cell {
-        padding: 3px 1px;
-        font-size: 10px;
-        min-height: 30px;
-      }
-    }
 
     @media (max-width: 450px) {
       body {
@@ -161,20 +101,10 @@
         min-width: 300px;
       }
 
-      .calendar-container {
-        padding: 10px;
-      }
-
       .calendar-cell {
         padding: 3px 1px;
         font-size: 10px;
         min-height: 28px;
-      }
-      
-      .edit-button {
-        font-size: 7px;
-        padding: 1px 2px;
-        height: 10px;
       }
     }
 
@@ -223,10 +153,100 @@
       display: flex;
       align-items: center;
       gap: 6px;
+      position: relative;
+      transform: translateY(0);
     }
 
     #timeButton::before {
       content: "⏱";
+    }
+
+    #timeButton:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(74, 144, 226, 0.4);
+    }
+
+    #timeButton:active {
+      transform: translateY(2px) scale(0.98);
+      box-shadow: 0 1px 4px rgba(74, 144, 226, 0.6);
+      background: linear-gradient(135deg, #3A7BD5, #4E50B8);
+    }
+
+    /* 按钮按下时的脉冲效果 */
+    #timeButton.pushed {
+      animation: pushEffect 0.6s ease-out;
+    }
+
+    @keyframes pushEffect {
+      0% {
+        transform: translateY(0) scale(1);
+      }
+      25% {
+        transform: translateY(3px) scale(0.95);
+        box-shadow: 0 1px 4px rgba(74, 144, 226, 0.8);
+      }
+      50% {
+        transform: translateY(-1px) scale(1.02);
+        box-shadow: 0 8px 20px rgba(74, 144, 226, 0.5);
+      }
+      100% {
+        transform: translateY(0) scale(1);
+        box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
+      }
+    }
+
+    /* 星星弹出动画 */
+    .star {
+      position: absolute;
+      font-size: 16px;
+      color: #FFD700;
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    .star.animate {
+      animation: starPop 1.2s ease-out forwards;
+    }
+
+    @keyframes starPop {
+      0% {
+        opacity: 1;
+        transform: translate(0, 0) scale(0.5) rotate(0deg);
+      }
+      30% {
+        opacity: 1;
+        transform: translate(var(--dx), var(--dy)) scale(1.2) rotate(180deg);
+      }
+      70% {
+        opacity: 0.8;
+        transform: translate(calc(var(--dx) * 1.5), calc(var(--dy) * 1.5)) scale(1) rotate(360deg);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(calc(var(--dx) * 2), calc(var(--dy) * 2)) scale(0.3) rotate(540deg);
+      }
+    }
+
+    /* 成功提示动画 */
+    .success-ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 215, 0, 0.3);
+      pointer-events: none;
+      animation: ripple 0.8s ease-out;
+    }
+
+    @keyframes ripple {
+      0% {
+        width: 0;
+        height: 0;
+        opacity: 1;
+      }
+      100% {
+        width: 100px;
+        height: 100px;
+        opacity: 0;
+      }
     }
 
     #timeButton:hover {
@@ -389,12 +409,6 @@
       margin-top: 0;
     }
 
-    /* 移除编辑按钮相关样式 */
-    .edit-button {
-      display: none;
-    }
-
-    /* 增强日历单元格的点击效果 */
     .calendar-cell:not(.day-header):not(.week-total) {
       background: #f8fafc;
       border: 1px solid #e2e8f0;
@@ -486,10 +500,6 @@
         padding: 6px;
       }
 
-      .calendar-container {
-        padding: 10px;
-      }
-
       .calendar-cell {
         padding: 3px 1px;
         font-size: 10px;
@@ -567,11 +577,6 @@
 
     /* 添加响应式支持 */
     @media (max-width: 450px) {
-      .modal-content {
-        width: 85%; /* 在小屏幕下适当增加宽度 */
-        max-width: 250px;
-        min-width: 180px;
-      }
       
       .modal-header {
         padding: 12px; /* 减少内边距 */
@@ -723,20 +728,10 @@
         padding: 6px;
       }
 
-      .calendar-container {
-        padding: 10px;
-      }
-
       .calendar-cell {
         padding: 3px 1px;
         font-size: 10px;
         min-height: 28px;
-      }
-      
-      .edit-button {
-        font-size: 7px;
-        padding: 1px 2px;
-        height: 10px;
       }
     }
 
@@ -791,7 +786,7 @@
       </div>
 
       <div class="month-info">
-        <div id="monthYear">2023年7月</div>
+        <div id="monthYear">2025年7月</div>
       </div>
     </div>
 
