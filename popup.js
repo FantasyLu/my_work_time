@@ -23,9 +23,19 @@ function getTodayString() {
 }
 
 // 记录时间
-async function recordTime() {
+async function recordTime(event) {
   const today = getTodayString();
   const now = new Date();
+  const button = document.getElementById('timeButton');
+  
+  // 添加按钮按下效果
+  button.classList.add('pushed');
+  
+  // 创建星星弹出效果，传递点击事件
+  createStarEffect(button, event);
+  
+  // 创建涟漪效果，传递点击事件
+  createRippleEffect(button, event);
   
   if (!workTimeData[today]) {
     workTimeData[today] = {
@@ -38,6 +48,101 @@ async function recordTime() {
   
   await saveData();
   await renderCalendar(currentDisplayDate);
+  
+  setTimeout(() => {
+    button.classList.remove('pushed');
+  }, 600);
+}
+
+// 创建主题化随机emoji弹出效果
+function createStarEffect(button, event) {
+  let centerX, centerY;
+  
+  if (event && event.clientX && event.clientY) {
+    centerX = event.clientX;
+    centerY = event.clientY;
+  } else {
+    const buttonRect = button.getBoundingClientRect();
+    centerX = buttonRect.left + buttonRect.width / 2;
+    centerY = buttonRect.top + buttonRect.height / 2;
+  }
+  
+  const emojiThemes = {
+    celebration: ['🎉', '🎊', '🥳', '🎈', '🎁', '🏆'],
+    sparkle: ['⭐', '✨', '🌟', '💫', '⚡', '💥'],
+    nature: ['🌸', '🌺', '🌻', '🍀', '🌈', '🦄'],
+    energy: ['🔥', '💎', '🚀', '⚡', '💥', '🌟'],
+    love: ['❤️', '💖', '💝', '💕', '💗', '💘']
+  };
+  
+  const themeKeys = Object.keys(emojiThemes);
+  const randomTheme = themeKeys[Math.floor(Math.random() * themeKeys.length)];
+  const selectedEmojis = emojiThemes[randomTheme];
+  
+  // 创建多个同主题的emoji
+  for (let i = 0; i < 6; i++) {
+    const emojiElement = document.createElement('div');
+    emojiElement.className = 'star';
+    
+    // 从选定主题中随机选择emoji
+    const randomEmoji = selectedEmojis[Math.floor(Math.random() * selectedEmojis.length)];
+    emojiElement.textContent = randomEmoji;
+    
+    // 随机方向和距离
+    const angle = (i * 60) + Math.random() * 30 - 15;
+    const distance = 40 + Math.random() * 20;
+    const dx = Math.cos(angle * Math.PI / 180) * distance;
+    const dy = Math.sin(angle * Math.PI / 180) * distance;
+    
+    emojiElement.style.left = centerX + 'px';
+    emojiElement.style.top = centerY + 'px';
+    emojiElement.style.setProperty('--dx', dx + 'px');
+    emojiElement.style.setProperty('--dy', dy + 'px');
+    
+    document.body.appendChild(emojiElement);
+    
+    setTimeout(() => {
+      emojiElement.classList.add('animate');
+    }, i * 50);
+    
+    setTimeout(() => {
+      if (emojiElement.parentNode) {
+        emojiElement.parentNode.removeChild(emojiElement);
+      }
+    }, 1200 + i * 50);
+  }
+}
+
+// 创建涟漪效果（跟随鼠标位置）
+function createRippleEffect(button, event) {
+  let centerX, centerY;
+  
+  if (event && event.clientX && event.clientY) {
+    // 使用鼠标点击位置
+    centerX = event.clientX;
+    centerY = event.clientY;
+  } else {
+    // 回退到按钮中心位置
+    const buttonRect = button.getBoundingClientRect();
+    centerX = buttonRect.left + buttonRect.width / 2;
+    centerY = buttonRect.top + buttonRect.height / 2;
+  }
+  
+  const ripple = document.createElement('div');
+  ripple.className = 'success-ripple';
+  
+  ripple.style.left = (centerX - 50) + 'px';
+  ripple.style.top = (centerY - 50) + 'px';
+  ripple.style.position = 'fixed';
+  
+  document.body.appendChild(ripple);
+  
+  // 动画结束后移除元素
+  setTimeout(() => {
+    if (ripple.parentNode) {
+      ripple.parentNode.removeChild(ripple);
+    }
+  }, 800);
 }
 
 // 计算工作时间（小时）
