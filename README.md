@@ -2,6 +2,9 @@
 
 如果你也是“弹性工作制”还被暗戳戳地记录工时，要求“平均每日最低工时”，可以用这个帮你下班得更有底气些
 
+<img width="509" height="592" alt="image" src="https://github.com/user-attachments/assets/1adb32b9-ae9e-4cf0-af6c-e732e8870a6a" />
+
+
 插件功能：
 - 记录每天的工作时间（第一次点击到最后一次点击的时间差）
 - 以小时为单位显示工作时间，保留两位小数
